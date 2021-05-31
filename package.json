@@ -30,6 +30,11 @@
       "displayName": "DualSense Main Sample",
       "description": "Shows how to use the DualSense main features.",
       "path": "Samples~/MainSample"
+    },
+    {
+      "displayName": "DualSense Lights Example",
+      "description": "Demonstrates how to use all the lights on the Dual sense controller. this includes the light bar, player leds and mic.",
+      "path": "Samples~/Lights"
     }
   ]
 }
