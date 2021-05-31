@@ -112,11 +112,17 @@ namespace UniSense
 
         public void ResetLightBarColor() => SetLightBarColor(Color.black);
 
+        public void ResetPlayerLedState() => SetPlayerLeds(new PlayerLedState());
+
+        public void ResetPlayerLedStateBrightness() => SetPlayerLedsBrightness(PlayerLedBrightness.Medium);
+
+        public void ResetMicLed() => SetMicLed(DualSenseMicLedState.Off);
+
         public void ResetTriggersState()
         {
             var command = DualSenseHIDOutputReport.Create();
-            command.SetRightTriggerState(m_rightTriggerState.Value);
-            command.SetLeftTriggerState(m_leftTriggerState.Value);
+            if (RightTriggerHasValue) command.SetRightTriggerState(m_rightTriggerState.Value);
+            if (LeftTriggerHasValue) command.SetLeftTriggerState(m_leftTriggerState.Value);
 
             ExecuteCommand(ref command);
         }
@@ -126,6 +132,9 @@ namespace UniSense
             ResetHaptics();
             ResetMotorSpeeds();
             ResetLightBarColor();
+            ResetPlayerLedState();
+            ResetPlayerLedStateBrightness();
+            ResetMicLed();
             ResetTriggersState();
         }
 
@@ -146,6 +155,30 @@ namespace UniSense
         {
             var command = DualSenseHIDOutputReport.Create();
             command.SetLightBarColor(color);
+
+            ExecuteCommand(ref command);
+        }
+
+        public void SetPlayerLeds(PlayerLedState state)
+        {
+            var command = DualSenseHIDOutputReport.Create();
+            command.SetPlayerLedState(state);
+
+            ExecuteCommand(ref command);
+        }
+
+        public void SetPlayerLedsBrightness(PlayerLedBrightness brightness)
+        {
+            var command = DualSenseHIDOutputReport.Create();
+            command.SetPlayerLedBrightness(brightness);
+
+            ExecuteCommand(ref command);
+        }
+
+        public void SetMicLed(DualSenseMicLedState state)
+        {
+            var command = DualSenseHIDOutputReport.Create();
+            command.SetMicLedState(state);
 
             ExecuteCommand(ref command);
         }
