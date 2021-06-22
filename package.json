@@ -35,6 +35,11 @@
       "displayName": "DualSense Lights Example",
       "description": "Demonstrates how to use all the lights on the Dual sense controller. this includes the light bar, player leds and mic.",
       "path": "Samples~/Lights"
+    },
+    {
+      "displayName": "DualSense Multiplayer Example",
+      "description": "Small example setup that handles the player leds for multiple players.",
+      "path": "Samples~/Multiplayer"
     }
   ]
 }

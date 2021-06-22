@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a41a1128354329e4fa532fe6ffb1d39a, type: 3}
+  m_Name: Dualsense_Controller_2
+  m_EditorClassIdentifier: 
+  LightbarColor: {r: 0.046294212, g: 0, b: 1, a: 1}
+  Led1: 0
+  Led2: 0
+  Led3: 0
+  Led4: 1
+  Led5: 0
