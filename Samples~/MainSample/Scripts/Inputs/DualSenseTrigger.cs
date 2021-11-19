@@ -191,12 +191,7 @@ namespace DualSenseSample.Inputs
 
         private void Update()
         {
-            var state = new DualSenseGamepadState
-            {
-                LeftTrigger = leftTriggerState,
-                RightTrigger = rightTriggerState
-            };
-            DualSense?.SetGamepadState(state);
+            DualSense?.SetTriggerState(leftTriggerState, rightTriggerState, false);
         }
 
         private DualSenseTriggerEffectType SetTriggerEffectType(int index)

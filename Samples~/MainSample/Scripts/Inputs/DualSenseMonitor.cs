@@ -15,11 +15,11 @@ namespace DualSenseSample.Inputs
     public sealed class DualSenseMonitor : MonoBehaviour
     {
         private AbstractDualSenseBehaviour[] listeners;
-
+        DualSenseGamepadHID dualSense;
         private void Start()
         {
             listeners = GetComponentsInChildren<AbstractDualSenseBehaviour>();
-            var dualSense = DualSenseGamepadHID.FindCurrent();
+            dualSense = DualSenseGamepadHID.FindCurrent();
             var isDualSenseConected = dualSense != null;
             if (isDualSenseConected) NotifyConnection(dualSense);
             else NotifyDisconnection();

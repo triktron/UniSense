@@ -1,17 +1,26 @@
-﻿using System.Runtime.InteropServices;
+﻿using System;
+using System.Runtime.InteropServices;
 using UnityEngine;
 
 namespace UniSense
 {
+    /// <summary>
+    /// A struct containing nullables values describing a gamepad state. A null value means 
+    /// "no changes since last state for this parameter"
+    /// </summary>
     public struct DualSenseGamepadState
     {
-        public Color? LightBarColor;
-        public DualSenseMotorSpeed? Motor;
-        public DualSenseMicLedState? MicLed;
+        //TODO implement deep copy and deep Equals() comparison to detect and reproduce changes between states
+        //TODO implement custom editor to display gamepadStates in the inspector
 
         public DualSenseTriggerState? RightTrigger;
         public DualSenseTriggerState? LeftTrigger;
 
+        public bool? UseLegacyRumbles;
+        public DualSenseMotorSpeed? Motor;
+
+        public Color? LightBarColor;
+        public DualSenseMicLedState? MicLed;
         public PlayerLedBrightness? PlayerLedBrightness;
         public PlayerLedState? PlayerLed;
     }
@@ -19,12 +28,27 @@ namespace UniSense
     public struct DualSenseMotorSpeed
     {
         public float LowFrequencyMotorSpeed;
-        public float HighFrequenceyMotorSpeed;
+        public float HighFrequencyMotorSpeed;
 
         public DualSenseMotorSpeed(float lowFrequencyMotorSpeed, float highFrequenceyMotorSpeed)
         {
             LowFrequencyMotorSpeed = lowFrequencyMotorSpeed;
-            HighFrequenceyMotorSpeed = highFrequenceyMotorSpeed;
+            HighFrequencyMotorSpeed = highFrequenceyMotorSpeed;
+        }
+
+        public override bool Equals(object obj)
+        {
+            return obj is DualSenseMotorSpeed speed &&
+                   LowFrequencyMotorSpeed == speed.LowFrequencyMotorSpeed &&
+                   HighFrequencyMotorSpeed == speed.HighFrequencyMotorSpeed;
+        }
+
+        public override int GetHashCode()
+        {
+            int hashCode = -344924298;
+            hashCode = hashCode * -1521134295 + LowFrequencyMotorSpeed.GetHashCode();
+            hashCode = hashCode * -1521134295 + HighFrequencyMotorSpeed.GetHashCode();
+            return hashCode;
         }
     }
     

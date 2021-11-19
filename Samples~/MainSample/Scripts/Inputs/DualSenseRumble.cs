@@ -11,16 +11,31 @@
         /// Normalized [0..1] value with 1 indicating maximum speed 
         /// and 0 indicating the motor is turned off.
         /// </summary>
-        public float LeftRumble { get; set; }
+        public float LeftRumble { 
+            get { return _leftRumble; }
+            set
+            {
+                _leftRumble = value;
+                UpdateMotorSpeeds();
+            }
+        }
+        private float _leftRumble;
 
         /// <summary>
         /// Speed of the high-frequency (right) motor. 
         /// Normalized [0..1] value with 1 indicating maximum speed 
         /// and 0 indicating the motor is turned off.
         /// </summary>
-        public float RightRumble { get; set; }
-
-        private void Update() => UpdateMotorSpeeds();
+        public float RightRumble
+        {
+            get { return _rightRumble; }
+            set
+            {
+                _rightRumble = value;
+                UpdateMotorSpeeds();
+            }
+        }
+        private float _rightRumble;
 
         private void UpdateMotorSpeeds()
             =>
