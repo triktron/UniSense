@@ -246,6 +246,13 @@ namespace UniSense
                 UpdateGamepad(false);
         }
 
+        [Obsolete("This method is deprecated, please use UpdateState or set NewState parameter directly followed by UpdateGamepad if needed")]
+        public void SetGamepadState(DualSenseGamepadState state)
+        {
+            NewState = state;
+            UpdateGamepad(false);
+        }
+
         /// <summary>
         /// Updates the gamepad outputs state accordingly to the actual value of the NewState property.
         /// </summary>
@@ -332,7 +339,7 @@ namespace UniSense
             if (UseLegacyHaptics)
             {
                 //TODO there is probably a better way to write this but its late and at least this is reasonably readable
-                bool rumbleIsNewVal = newState.Motor.HasValue && (!newState.Motor.Value.Equals(new DualSenseMotorSpeed(0, 0)) || !newState.Motor.Value.Equals(currentState?.Motor)); ;
+                bool rumbleIsNewVal = newState.Motor.HasValue && (!newState.Motor.Value.Equals(new DualSenseMotorSpeed(0, 0)) || !newState.Motor.Value.Equals(m_motorSpeeds));
                 bool oldValIsNonZero = currentState.HasValue && currentState.Value.Motor.HasValue && !currentState.Value.Motor.Equals(new DualSenseMotorSpeed(0, 0));
 
                 DualSenseMotorSpeed? motorValue = rumbleIsNewVal ? newState.Motor : (oldValIsNonZero ? currentState.Value.Motor : null);
@@ -345,7 +352,9 @@ namespace UniSense
                         updatedValues = true;
                     }
                     if (!shouldPauseHapticAtNextUpdate)
+                    {
                         m_motorSpeeds = motorValue;
+                    }
                 }
             }
             if (newState.LeftTrigger.HasValue && (!sendOnlyChangedValues || !newState.LeftTrigger.Equals(currentState?.LeftTrigger)))
@@ -461,6 +470,9 @@ namespace UniSense
         /// </summary>
         private bool shouldPauseHapticAtNextUpdate = false;
         public bool IsHapticPaused { get; private set; } = false;
+        /// <summary>
+        /// m_motorSpeeds == currentState.Motor except when haptic are paused, then it is the value currentState.Motor ould be if haptics weren't paused.
+        /// </summary>
         private DualSenseMotorSpeed? m_motorSpeeds;
         private DualSenseTriggerState? m_rightTriggerState;
         private DualSenseTriggerState? m_leftTriggerState;

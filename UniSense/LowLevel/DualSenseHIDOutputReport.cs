@@ -22,6 +22,10 @@ namespace UniSense.LowLevel
             MainMotors2 = 0x02,
             RightTrigger = 0x04,
             LeftTrigger = 0x08,
+            Volume = 0x10,
+            //InternalSpeaker = 0x20,   // 0x20 toggling of internal speaker while headset is connected
+            //MicVolume = 0x40,         // 0x40 modification of microphone volume
+            //InternalMic = 0x80        // 0x80 toggling of internal mic or external speaker while headset is connected
         }
 
         [Flags]
@@ -30,6 +34,17 @@ namespace UniSense.LowLevel
             MicLed = 0x01,
             SetLightBarColor = 0x04,
             PlayerLed = 0x10,
+        }
+
+        [Flags]
+        internal enum AudioFlags : byte
+        {
+            // 0x01 = force use of internal controller mic (if neither 0x01 and 0x02 are set, an attached headset will take precedence)
+            // 0x02 = force use of mic attached to the controller (headset)
+            // 0x04 = pads left channel of external mic (~1/3rd of the volume? maybe the amount can be controlled?)
+            // 0x08 = pads left channel of internal mic (~1/3rd of the volume? maybe the amount can be controlled?)
+            // 0x10 = disable attached headphones (only if 0x20 to enable internal speakers is provided as well)
+            // 0x20 = enable audio on internal speaker (in addition to a connected headset; headset will use a stereo upmix of the left channel, internal speaker will play the right channel)
         }
 
         internal enum InternalMicLedState : byte
@@ -61,6 +76,11 @@ namespace UniSense.LowLevel
 
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 3)] public byte lowFrequencyMotorSpeed;
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 4)] public byte highFrequencyMotorSpeed;
+
+        [FieldOffset(InputDeviceCommand.BaseCommandSize + 5)] public byte externalVolume; // volume of external device plugged in the controller jack
+        [FieldOffset(InputDeviceCommand.BaseCommandSize + 6)] public byte internalVolume; // volume of internal speaker of the controller
+        [FieldOffset(InputDeviceCommand.BaseCommandSize + 7)] public byte internalMicVolume; // internal microphone volume (not at all linear; 0-255, maxes out at 0x40, all values above are treated like 0x40;
+        [FieldOffset(InputDeviceCommand.BaseCommandSize + 8)] public AudioFlags audioFlags;
 
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 9)] public InternalMicLedState micLedState;
         
