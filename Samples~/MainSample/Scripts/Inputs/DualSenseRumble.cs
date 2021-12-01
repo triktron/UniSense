@@ -39,6 +39,6 @@
 
         private void UpdateMotorSpeeds()
             =>
-            DualSense?.SetMotorSpeeds(LeftRumble, RightRumble);
+            DualSense?.SetMotorSpeeds(RightRumble, LeftRumble);
     }
 }

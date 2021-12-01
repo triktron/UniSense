@@ -9,7 +9,7 @@ using UnityEditor;
 /// A simple autoUpdater to ensure Legacy rumbles stay activated (they will stop after a few seconds without update otherwise)
 /// and that updates that failed to be sent are tried again without too much delay.
 /// </summary>
-public class DualsenseAutoUpdater : AbstractDualSenseBehaviour
+public class DualSenseAutoUpdater : AbstractDualSenseBehaviour
 {
     [Tooltip("Should the auto updates starts as soon as the game is launched")]
     public bool autoStartOnPlay = true;
@@ -68,12 +68,12 @@ public class DualsenseAutoUpdater : AbstractDualSenseBehaviour
 
 #if UNITY_EDITOR
 
-[CustomEditor(typeof(DualsenseAutoUpdater))]
+[CustomEditor(typeof(DualSenseAutoUpdater))]
 public class DualsenseAutoUpdaterInspector : Editor
 {
     public override void OnInspectorGUI()
     {
-        DualsenseAutoUpdater autoUpdater = (DualsenseAutoUpdater)serializedObject.targetObject;
+        DualSenseAutoUpdater autoUpdater = (DualSenseAutoUpdater)serializedObject.targetObject;
 
         string state;
         string button;

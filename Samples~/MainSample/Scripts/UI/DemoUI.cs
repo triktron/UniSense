@@ -7,6 +7,7 @@ namespace DualSenseSample.UI
         public GameObject touchpadPanel;
         public GameObject rumblePanel;
         public GameObject triggerPanel;
+        public GameObject audioPanel;
 
         public void ToggleTouchpadPanel()
             => touchpadPanel.SetActive(!touchpadPanel.activeInHierarchy);
@@ -16,5 +17,7 @@ namespace DualSenseSample.UI
 
         public void ToggleTriggerPanel()
             => triggerPanel.SetActive(!triggerPanel.activeInHierarchy);
+        public void ToggleAudioPanel()
+            => audioPanel.SetActive(!audioPanel.activeInHierarchy);
     }
 }

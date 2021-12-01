@@ -5,9 +5,35 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
-- Security fix (some values can be changed outside of the plugin as it is mainly using shallow copies)
-- Add volume setter to be able to change the controller speaker/headphone jack volume
+
+### [Need to be] Added
+- Newer trigger force feedback effects (check compatibility depending on the controller updates?)
 - Search and implement Bluetooth version?
+- Mics parameters implementation
+
+### [Need to be] Fixed
+- Internal speaker volume setter (need to find the right flags)
+
+### [Need to be] Changed
+- Use of UseLegacyRumble bool to a RumbleType enum {LegacyOnly (always sending legacy values even when 0), HDAndPause (discard any motor value but still automaticaly send 0 values whan HapticPaused is true), HDOnly (always discard motor values)}
+
+### [Need to be reviewed for] Security
+- Some values can be changed outside of the plugin as it is mainly using shallow copies
+
+
+
+## [0.2.1] - 2021-12-01
+
+### Added
+- Possibility to change the volume of the controller (internal speaker or plugged in device) and access to these parameters in the sample scene. (internal speaker volume seems to be not fully working yet)
+
+### Deprecated
+- SetGamepadState method : use UpdateState() or directly set NewState property follwed by UpdateGamepad instead.
+
+### Fixed
+- Restored the missing method SetGamepadState as deprecated for compatibility with 0.1.0 sample. This will surely be removed for the 1.0.0.
+- Bug when setting legacy rumble to 0 while in haptic pause (they used to restart once the pause was over anyway);
+- Side of rumble in the sample scene (the right and left used to be switched) 
 
 
 ## [0.2.0] - 2021-11-19
@@ -26,6 +52,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 
 ### Fixed
 - Bug which prevented legacy rumble or trigger force feedbacks wether the sample was executed in the Unity editor or a build.
+
 
 ## [0.1.0] - ????-??-??
 

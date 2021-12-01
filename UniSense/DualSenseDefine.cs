@@ -23,6 +23,9 @@ namespace UniSense
         public DualSenseMicLedState? MicLed;
         public PlayerLedBrightness? PlayerLedBrightness;
         public PlayerLedState? PlayerLed;
+
+        public float? internalVolume;
+        public float? externalDeviceVolume;
     }
 
     public struct DualSenseMotorSpeed
@@ -50,6 +53,13 @@ namespace UniSense
             hashCode = hashCode * -1521134295 + HighFrequencyMotorSpeed.GetHashCode();
             return hashCode;
         }
+    }
+
+    public enum DualSenseTargetAudioDevice
+    {
+        InternalSpeaker,
+        ExternalPluggedInDevice,
+        Both
     }
     
     public enum DualSenseMicLedState

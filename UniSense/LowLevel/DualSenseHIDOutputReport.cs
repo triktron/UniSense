@@ -6,6 +6,8 @@ using UnityEngine.InputSystem.Utilities;
 
 namespace UniSense.LowLevel
 {
+    // helping source : https://gist.github.com/stealth-alex/10a8e7cc6027b78fa18a7f48a0d3d1e4
+
     [StructLayout(LayoutKind.Explicit, Size = kSize)]
     internal unsafe struct DualSenseHIDOutputReport : IInputDeviceCommandInfo
     {
@@ -22,8 +24,8 @@ namespace UniSense.LowLevel
             MainMotors2 = 0x02,
             RightTrigger = 0x04,
             LeftTrigger = 0x08,
-            Volume = 0x10,
-            //InternalSpeaker = 0x20,   // 0x20 toggling of internal speaker while headset is connected
+            AudioVolume = 0x10,
+            InternalSpeaker = 0x20,   // 0x20 toggling of internal speaker while headset is connected
             //MicVolume = 0x40,         // 0x40 modification of microphone volume
             //InternalMic = 0x80        // 0x80 toggling of internal mic or external speaker while headset is connected
         }
@@ -43,8 +45,8 @@ namespace UniSense.LowLevel
             // 0x02 = force use of mic attached to the controller (headset)
             // 0x04 = pads left channel of external mic (~1/3rd of the volume? maybe the amount can be controlled?)
             // 0x08 = pads left channel of internal mic (~1/3rd of the volume? maybe the amount can be controlled?)
-            // 0x10 = disable attached headphones (only if 0x20 to enable internal speakers is provided as well)
-            // 0x20 = enable audio on internal speaker (in addition to a connected headset; headset will use a stereo upmix of the left channel, internal speaker will play the right channel)
+            disableExternalDevice = 0x10,   // 0x10 = disable attached headphones (only if 0x20 to enable internal speakers is provided as well)
+            enableInternalSpeaker = 0x20    // 0x20 = enable audio on internal speaker (in addition to a connected headset; headset will use a stereo upmix of the left channel, internal speaker will play the right channel)
         }
 
         internal enum InternalMicLedState : byte
@@ -91,6 +93,8 @@ namespace UniSense.LowLevel
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 23)] public fixed byte leftTriggerParams[kTriggerParamSize];
         
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 37)] public byte powerReduction;
+
+        [FieldOffset(InputDeviceCommand.BaseCommandSize + 37)] public byte secondInternalVolume;
         
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 39)] public LedFlags ledFlags;
         [FieldOffset(InputDeviceCommand.BaseCommandSize + 42)] public byte ledPulseOption;
@@ -249,6 +253,26 @@ namespace UniSense.LowLevel
         {
             ledFlags |= LedFlags.LightBarFade;
             ledPulseOption = 0x01;
+        }
+
+        /// <summary>
+        /// not working yet, I couldn't figure out which flags and value would work to enable this,
+        /// the only thing that work for now is that it stop audio to external device when set 
+        /// (until SetExternalDeviceVolume is called again)
+        /// </summary>
+        /// <param name="volume"></param>
+        public void SetInternalVolume(float volume)
+        {
+            flags1 |= Flags1.AudioVolume | Flags1.InternalSpeaker;
+            audioFlags |= AudioFlags.enableInternalSpeaker;
+            internalVolume = (byte)Mathf.Clamp(volume * 255, 0, 255);
+            secondInternalVolume = (byte)Mathf.Clamp(volume * 0, 0, 7);
+        }
+
+        public void SetExternalDeviceVolume(float volume)
+        {
+            flags1 |= Flags1.AudioVolume;
+            externalVolume = (byte)Mathf.Clamp(volume * 255, 0, 255);
         }
 
         public static DualSenseHIDOutputReport Create()

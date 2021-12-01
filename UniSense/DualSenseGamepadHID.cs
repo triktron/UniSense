@@ -166,7 +166,8 @@ namespace UniSense
 
             ResetTriggersState(false);
 
-            UpdateGamepad(false);
+            if (updateGamepad)
+                UpdateGamepad(false);
         }
 
         #region Haptics : Legacy rumbles
@@ -215,6 +216,37 @@ namespace UniSense
             => SetTriggerState(new DualSenseTriggerState(), new DualSenseTriggerState(), updateGamepad);
         #endregion
 
+        #endregion
+
+        #region Audio Volume
+        public void SetAudioVolume(float volume, DualSenseTargetAudioDevice target = DualSenseTargetAudioDevice.InternalSpeaker , bool updateGamepad = true)
+        {
+            DualSenseGamepadState gamepadState = new DualSenseGamepadState();
+
+            switch(target)
+            {
+                case DualSenseTargetAudioDevice.InternalSpeaker:
+                    gamepadState.internalVolume = volume;
+                    break;
+
+                case DualSenseTargetAudioDevice.ExternalPluggedInDevice:
+                    gamepadState.externalDeviceVolume = volume;
+                    break;
+
+                case DualSenseTargetAudioDevice.Both:
+                    gamepadState.internalVolume = volume;
+                    gamepadState.externalDeviceVolume = volume;
+                    break;
+
+                default:
+                    Debug.LogError("Unknown value or not implemented!");
+                    break;
+            }
+            Debug.Log("received " + volume + "  for " + target.ToString());
+
+            UpdateState(gamepadState, updateGamepad);
+        }
+        public void ResetAudioVolume(bool updateGamepad = true) => SetAudioVolume(0, DualSenseTargetAudioDevice.Both, updateGamepad);
         #endregion
 
         #endregion
@@ -378,8 +410,19 @@ namespace UniSense
                     m_rightTriggerState = newState.RightTrigger.Value;
             }
 
+            if (newState.internalVolume.HasValue && (!sendOnlyChangedValues || !newState.internalVolume.Equals(currentState?.internalVolume)))
+            {
+                outputReport.SetInternalVolume(newState.internalVolume.Value);
+                updatedValues = true;
+            }
+            if (newState.externalDeviceVolume.HasValue && (!sendOnlyChangedValues || !newState.externalDeviceVolume.Equals(currentState?.externalDeviceVolume)))
+            {
+                outputReport.SetExternalDeviceVolume(newState.externalDeviceVolume.Value);
+                updatedValues = true;
+            }
 
-            if (shouldPauseHapticAtNextUpdate)
+
+                if (shouldPauseHapticAtNextUpdate)
             {
                 IsHapticPaused = true;
                 shouldPauseHapticAtNextUpdate = false;
