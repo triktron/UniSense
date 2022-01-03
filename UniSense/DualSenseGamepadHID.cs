@@ -25,11 +25,81 @@ namespace UniSense
 #endif
     public class DualSenseGamepadHID : DualShockGamepad
     {
+        #region Attributes
+
         public ButtonControl leftTriggerButton { get; protected set; }
         public ButtonControl rightTriggerButton { get; protected set; }
         public ButtonControl playStationButton { get; protected set; }
 
         public ButtonControl micMuteButton { get; protected set; }
+
+
+        public bool UpdateSucceeded { get; private set; }
+        public float LastGamepadUpdateTime { get; private set; } = 0;
+        public float TimeSinceLastGamepadUpdate => Time.realtimeSinceStartup - LastGamepadUpdateTime;
+
+        private DualSenseGamepadState _newState;
+        private bool stateModified;
+        public DualSenseGamepadState NewState
+        {
+            get { return _newState; } // TODO Data out protection
+            set
+            {
+                stateModified = true;
+                CheckLegacyRumbleValidity(ref value.Motor);
+                _newState = value; // TODO data in protection
+            }
+        }
+
+        //TODO initialise to known gamepad startup default values
+        private DualSenseGamepadState _currentGamepadState;
+        public DualSenseGamepadState CurrentGamepadState
+        {
+            get { return _currentGamepadState; } // TODO Data out protection
+            private set
+            {
+                _currentGamepadState = value;
+            }
+        }
+
+        private bool _useLegacyHaptics = true;
+        public bool UseLegacyHaptics
+        {
+            get { return _useLegacyHaptics; }
+            set
+            {
+                if (!value)
+                    ResetMotorSpeeds(true);
+                _useLegacyHaptics = value;
+            }
+        }
+
+        public delegate void HapticsControls(DualSenseGamepadHID dualSenseGamepad);
+
+        //events invoked when the corresponding method is called and UseLegacyRumbles == false, use them to mute/resume HD rumble on your integration!
+        //Due to the current implementation PauseHaptic() method will call both ShouldPauseHDHaptics and ShouldResetHDHaptics (in this order).
+        public event HapticsControls ShouldPauseHDHaptics;
+        public event HapticsControls ShouldResetHDHaptics;
+        public event HapticsControls ShouldResumeHDHaptics;
+
+        // Save values to allow pause and resume haptics functions
+        /// <summary>
+        /// A simple bool to flag the next gamepad update as one where the given haptic values 
+        /// should not be saved (as they are reset values) and were the HapticPaused bool should be set to true afterwards.
+        /// </summary>
+        private bool shouldPauseHapticAtNextUpdate = false;
+        public bool IsHapticPaused { get; private set; } = false;
+        /// <summary>
+        /// m_motorSpeeds == currentState.Motor except when haptic are paused, then it is the value currentState.Motor ould be if haptics weren't paused.
+        /// </summary>
+        private DualSenseMotorSpeed? m_motorSpeeds;
+        private DualSenseTriggerState? m_rightTriggerState;
+        private DualSenseTriggerState? m_leftTriggerState;
+
+        #endregion
+
+
+        #region Methods
 
 #if UNITY_EDITOR
         static DualSenseGamepadHID()
@@ -457,68 +527,6 @@ namespace UniSense
 
             return (DualSenseGamepadState)boxedState;
         }
-
-        public bool UpdateSucceeded { get; private set; }
-        public float LastGamepadUpdateTime { get; private set; } = 0;
-        public float TimeSinceLastGamepadUpdate => Time.realtimeSinceStartup - LastGamepadUpdateTime;
-
-        private DualSenseGamepadState _newState;
-        private bool stateModified;
-        public DualSenseGamepadState NewState
-        {
-            get { return _newState; } // TODO Data out protection
-            set
-            {
-                stateModified = true;
-                CheckLegacyRumbleValidity(ref value.Motor);
-                _newState = value; // TODO data in protection
-            }
-        }
-
-        //TODO initialise to known gamepad startup default values
-        private DualSenseGamepadState _currentGamepadState;
-        public DualSenseGamepadState CurrentGamepadState
-        {
-            get { return _currentGamepadState; } // TODO Data out protection
-            private set
-            {
-                _currentGamepadState = value;
-            }
-        }
-
-        private bool _useLegacyHaptics = true;
-        public bool UseLegacyHaptics
-        {
-            get { return _useLegacyHaptics; }
-            set
-            {
-                if (!value)
-                    ResetMotorSpeeds(true);
-                _useLegacyHaptics = value;
-            }
-        }
-
-        public delegate void HapticsControls(DualSenseGamepadHID dualSenseGamepad);
-
-        //events invoked when the corresponding method is called and UseLegacyRumbles == false, use them to mute/resume HD rumble on your integration!
-        //Due to the current implementation PauseHaptic() method will call both ShouldPauseHDHaptics and ShouldResetHDHaptics (in this order).
-        public event HapticsControls ShouldPauseHDHaptics;
-        public event HapticsControls ShouldResetHDHaptics;
-        public event HapticsControls ShouldResumeHDHaptics;
-
-        // Save values to allow pause and resume haptics functions
-        /// <summary>
-        /// A simple bool to flag the next gamepad update as one where the given haptic values 
-        /// should not be saved (as they are reset values) and were the HapticPaused bool should be set to true afterwards.
-        /// </summary>
-        private bool shouldPauseHapticAtNextUpdate = false;
-        public bool IsHapticPaused { get; private set; } = false;
-        /// <summary>
-        /// m_motorSpeeds == currentState.Motor except when haptic are paused, then it is the value currentState.Motor ould be if haptics weren't paused.
-        /// </summary>
-        private DualSenseMotorSpeed? m_motorSpeeds;
-        private DualSenseTriggerState? m_rightTriggerState;
-        private DualSenseTriggerState? m_leftTriggerState;
-
+        #endregion
     }
 }
