@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+using UnityEditor;
 using UnityEngine;
 
 namespace UniSense
@@ -61,39 +62,47 @@ namespace UniSense
         ExternalPluggedInDevice,
         Both
     }
-    
+
     public enum DualSenseMicLedState
     {
         Off,
         On,
         Pulsating,
     }
-    
+
     public enum DualSenseTriggerEffectType : byte
     {
         NoResistance = 0,
+        ResetResistance,
         ContinuousResistance,
         SectionResistance,
         EffectEx,
-        Calibrate,
+        //Calibrate,
     }
-    
-    [StructLayout(LayoutKind.Explicit)]
+
+    [Serializable]
+    //[StructLayout(LayoutKind.Explicit)] // having such an explicit layout is incompatible with unity inspector
     public struct DualSenseTriggerState
     {
-        [FieldOffset(0)] public DualSenseTriggerEffectType EffectType;
+        //[FieldOffset(0)]
+        public DualSenseTriggerEffectType EffectType;
 
-        [FieldOffset(1)] public DualSenseContinuousResistanceProperties Continuous;
-        [FieldOffset(1)] public DualSenseSectionResistanceProperties Section;
-        [FieldOffset(1)] public DualSenseEffectExProperties EffectEx;
+        //[FieldOffset(1)] 
+        public DualSenseContinuousResistanceProperties Continuous;
+        //[FieldOffset(1)] 
+        public DualSenseSectionResistanceProperties Section;
+        //[FieldOffset(1)] 
+        public DualSenseEffectExProperties EffectEx;
     }
 
+    [Serializable]
     public struct DualSenseContinuousResistanceProperties
     {
         public byte StartPosition;
         public byte Force;
     }
 
+    [Serializable]
     public struct DualSenseSectionResistanceProperties
     {
         public byte StartPosition;
@@ -101,6 +110,7 @@ namespace UniSense
         public byte Force;
     }
 
+    [Serializable]
     public struct DualSenseEffectExProperties
     {
         public byte StartPosition;
@@ -128,7 +138,7 @@ namespace UniSense
         private const byte LED_MASK = LED1 | LED2 | LED3 | LED4 | LED5;
 
         private const byte FADE = 0x40;
-        
+
         public byte Value { get; private set; }
 
         public PlayerLedState(bool led1, bool led2, bool led3, bool led4, bool led5, bool fade = true)
@@ -144,8 +154,99 @@ namespace UniSense
 
         public PlayerLedState(byte led, bool fade = false)
         {
-            Value = (byte) (led & LED_MASK);
+            Value = (byte)(led & LED_MASK);
             if (fade) Value |= FADE;
         }
     }
+    
+#if UNITY_EDITOR
+    [CustomPropertyDrawer(typeof(DualSenseTriggerState))]
+    public class UniqueObjectLogicProperty : PropertyDrawer
+    {
+        bool isFoldout = false;
+        SerializedProperty effectType = null;
+        SerializedProperty effectParameters;
+
+        void Init(SerializedProperty property)
+        {
+            if (effectType is null)
+                effectType = property.FindPropertyRelative("EffectType");
+            
+            switch ((DualSenseTriggerEffectType) effectType.enumValueIndex)
+            {
+                case DualSenseTriggerEffectType.ContinuousResistance:
+                    effectParameters = property.FindPropertyRelative("Continuous");
+                    break;
+
+                case DualSenseTriggerEffectType.SectionResistance:
+                    effectParameters = property.FindPropertyRelative("Section");
+                    break;
+
+                case DualSenseTriggerEffectType.EffectEx:
+                    effectParameters = property.FindPropertyRelative("EffectEx");
+                    break;
+
+                case DualSenseTriggerEffectType.NoResistance:
+                case DualSenseTriggerEffectType.ResetResistance:
+                //case DualSenseTriggerEffectType.Calibrate:
+                    effectParameters = null;
+                    break;
+
+                default:
+                    Debug.LogError("Unimplemented Effect Type Value");
+                    break;
+            }
+        }
+
+        public override void OnGUI(Rect position, SerializedProperty property, GUIContent label)
+        {
+            Init(property);
+
+            Rect subPos = new Rect(position);
+            //EditorGUI.BeginProperty(position, label, property);
+            subPos.height = EditorGUIUtility.singleLineHeight;
+            isFoldout = EditorGUI.BeginFoldoutHeaderGroup(subPos, isFoldout, label);
+            if (isFoldout)
+            {
+                EditorGUI.indentLevel++;
+                
+                subPos.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                subPos.height = EditorGUIUtility.singleLineHeight;
+                EditorGUI.PropertyField(subPos, effectType, new GUIContent("Effect Type"), true);
+                
+                if (effectType.hasMultipleDifferentValues)
+                {
+                    subPos.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    EditorGUI.LabelField(subPos, "Cannot edit mutiple parameters when Effect Type is different");
+                }
+                else if (effectParameters != null)
+                {
+                    subPos.y += EditorGUIUtility.singleLineHeight + EditorGUIUtility.standardVerticalSpacing;
+                    subPos.height = EditorGUI.GetPropertyHeight(effectParameters);
+                    EditorGUI.PropertyField(subPos, effectParameters, new GUIContent("Effect Parameters"), true);
+                }
+
+                EditorGUI.indentLevel--;
+            }
+            EditorGUI.EndFoldoutHeaderGroup();
+            //EditorGUI.EndProperty();
+        }
+
+        public override float GetPropertyHeight(SerializedProperty property, GUIContent label)
+        {
+            Init(property);
+
+            float total = EditorGUIUtility.singleLineHeight;
+            if (isFoldout)
+            {
+                total += EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight; 
+                if (effectType.hasMultipleDifferentValues)
+                    total += EditorGUIUtility.standardVerticalSpacing + EditorGUIUtility.singleLineHeight;
+                else if (effectParameters != null)
+                    total += EditorGUIUtility.standardVerticalSpacing + EditorGUI.GetPropertyHeight(effectParameters);
+            }
+            return total;
+        }
+    }
+#endif
 }

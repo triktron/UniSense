@@ -21,6 +21,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Some values can be changed outside of the plugin as it is mainly using shallow copies
 
 
+## [0.2.2] - 2022-01-05
+
+### Added
+- "ResetResitance" option for triggerState (retract the actuator back instead of leaving it as with the NoResitance state)
+- Inspector displaying rules for TriggerState struct
+
+### Changed
+- TriggerState struct is now Serializable and not Layout.explicit anymore to ensure unity inspector compatibilty
+
 
 ## [0.2.1] - 2021-12-01
 
@@ -28,7 +37,7 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Possibility to change the volume of the controller (internal speaker or plugged in device) and access to these parameters in the sample scene. (internal speaker volume seems to be not fully working yet)
 
 ### Deprecated
-- SetGamepadState method : use UpdateState() or directly set NewState property follwed by UpdateGamepad instead.
+- SetGamepadState method : use UpdateState() or directly set NewState property followed by UpdateGamepad instead.
 
 ### Fixed
 - Restored the missing method SetGamepadState as deprecated for compatibility with 0.1.0 sample. This will surely be removed for the 1.0.0.
