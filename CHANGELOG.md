@@ -21,6 +21,15 @@ and this project adheres to [Semantic Versioning](http://semver.org/spec/v2.0.0.
 - Some values can be changed outside of the plugin as it is mainly using shallow copies
 
 
+## [0.2.3] - 2022-01-10
+
+### Added
+- the possibility to set only one triggerState with the SetTriggerState() QuickSet (the other one can now be a null value)
+
+### Fixed
+- Corrected DualSenseGamepadHID.FindCurrent() description
+
+
 ## [0.2.2] - 2022-01-05
 
 ### Added

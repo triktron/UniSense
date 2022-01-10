@@ -126,7 +126,7 @@ namespace UniSense
 
         /// <summary>
         /// Finds the DualSense last used/connected by the player or <c>null</c> if 
-        /// there is no one connected to the system.
+        /// the current gamepad is not a DualSense or if there is no DualSense connected.
         /// </summary>
         /// <returns>A DualSenseGamepadHID instance or <c>null</c>.</returns>
         public static DualSenseGamepadHID FindCurrent() => Gamepad.current as DualSenseGamepadHID;
@@ -269,15 +269,20 @@ namespace UniSense
         /// <summary>
         /// Sets the force feedback on the trigger of the gamepad
         /// </summary>
-        /// <param name="leftTriggerState">Left trigger state to set</param>
-        /// <param name="rightTriggerState">Right trigger state to set</param>
+        /// <param name="leftTriggerState">Left trigger state to set, null value leave it unchanged</param>
+        /// <param name="rightTriggerState">Right trigger state to set, null value leave it unchanged</param>
         /// <param name="updateGamepad">Should the gamepad be updated immediatly. If set to false 
         /// "UpdateGamepad()" should be called afterwards to apply the value</param>
-        public void SetTriggerState(DualSenseTriggerState leftTriggerState, DualSenseTriggerState rightTriggerState, bool updateGamepad = true)
+        public void SetTriggerState(DualSenseTriggerState? leftTriggerState, DualSenseTriggerState? rightTriggerState, bool updateGamepad = true)
         {
+            if (leftTriggerState is null && rightTriggerState is null)
+                return;
+
             DualSenseGamepadState gamepadState = new DualSenseGamepadState();
-            gamepadState.LeftTrigger = leftTriggerState;
-            gamepadState.RightTrigger = rightTriggerState;
+            if (leftTriggerState.HasValue)
+                gamepadState.LeftTrigger = leftTriggerState.Value;
+            if (rightTriggerState.HasValue)
+                gamepadState.RightTrigger = rightTriggerState.Value;
 
             UpdateState(gamepadState, updateGamepad);
         }
