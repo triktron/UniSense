@@ -139,7 +139,8 @@ namespace UniSense
                     .WithInterface("HID")
                     .WithManufacturer("Sony.+Entertainment")
                     .WithCapability("vendorId", 0x54C)
-                    .WithCapability("productId", 0xCE6));
+                    .WithCapability("productId", 0xCE6)
+                    .WithCapability("inputReportSize", 64));
         }
 
         protected override void FinishSetup()
